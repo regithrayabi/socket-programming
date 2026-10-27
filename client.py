@@ -1,25 +1,33 @@
-import socket # Mengimpor modul socket yang diperlukan
+import socket
+
+# Ganti dengan IP IPv4 laptop server (hasil 'ipconfig' di laptop temanmu)
+SERVER_IP = '192.168.x.x' 
+PORT = 5000
 
 def start_client():
-    # Membuat objek socket dan menghubungkannya ke alamat IP dan port server
-    client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    client_socket.connect(('localhost', 12345))
+    client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    
+    try:
+        # Menghubungkan ke IP dan Port server
+        client.connect((SERVER_IP, PORT))
+        print(f"[TERHUBUNG] Berhasil terhubung ke server {SERVER_IP}:{PORT}")
+        print("Ketik pesan lalu tekan Enter (ketik 'EXIT' untuk keluar):")
 
-    # Memungkinkan pengguna untuk memasukkan pesan teks dan mengirimkannya ke server dalam sebuah loop
-    while True:
-        # Meminta input pengguna dan mengirimkan pesan teks tersebut ke server
-        message = input("Masukkan pesan (atau ketik 'keluar' untuk berhenti): ")
-        client_socket.sendall(message.encode('utf-8'))
-        
-        if message.lower() == 'keluar':
-            break
+        while True:
+            message = input("> ")
+            client.send(message.encode('utf-8'))
+            
+            if message == "EXIT":
+                break
 
-        # Menerima dan menampilkan respons dari server di terminal
-        response = client_socket.recv(1024).decode('utf-8')
-        print(f"Server response: {response}")
+            # Menerima balasan dari server
+            response = client.recv(1024).decode('utf-8')
+            print(f"[SERVER]: {response}")
 
-    # Menangani penutupan koneksi dengan benar
-    client_socket.close()
+    except Exception as e:
+        print(f"[ERROR] Gagal terhubung ke server: {e}")
+    finally:
+        client.close()
 
 if __name__ == "__main__":
     start_client()
